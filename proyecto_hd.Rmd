@@ -1,0 +1,71 @@
+---
+title: "Proyecto_HD"
+output: html_document
+date: "2023-06-18"
+---
+
+
+```{r}
+library(readxl)
+
+#Base de datos
+datos <- read_excel("C:/Users/kduab/OneDrive/Desktop/Archivos/BASE_RESERVAS_NETAS.xlsx")
+```
+
+```{r}
+vector_nd <- function(datos, columna) {
+  vector_original <- datos[[columna]]
+  media <- mean(vector_original)
+  desviacion_estandar <- sd(vector_original)
+  longitud <- length(vector_original)
+  
+  vector_nuevo <- rnorm(n = longitud, mean = 0, sd = 1)
+  vector_nuevo <- vector_nuevo * desviacion_estandar + media
+  
+  return(vector_nuevo)
+}
+```
+
+
+```{r}
+set.seed(123)
+vector_nuevo <- vector_nd(datos, "Reserva_Neta")
+
+print(vector_nuevo)
+
+datos <- cbind(datos, Reserva_Neta_Real = vector_nuevo)
+```
+
+```{r}
+datos
+```
+
+```{r}
+library(openxlsx)
+
+write.xlsx(datos, "datos.xlsx", rowNames = FALSE)
+```
+
+```{r}
+datos <- read_excel("C:/Users/kduab/OneDrive/Desktop/datos.xlsx")
+datos$IMAE_ULT_12M <- NULL
+
+datos$Año <- as.numeric(datos$Año)
+datos$Reserva_Neta <- as.numeric(datos$Reserva_Neta)
+datos$Reserva_Neta_Real<- as.numeric(datos$Reserva_Neta_Real)
+datos$IPC_Nivel <- as.numeric(datos$IPC_Nivel)
+datos$IPC_VAR_MENSUAL <- as.numeric(datos$IPC_VAR_MENSUAL)
+datos$TC_DOLAR <- as.numeric(datos$TC_DOLAR)
+
+M <- cor(datos)
+```
+
+```{r}
+library(corrplot)
+corrplot(M)
+```
+
+
+
+
+
